@@ -1,0 +1,52 @@
+#include "opencv2/objdetect/objdetect.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include <stdlib.h>
+#include <stdio.h>
+#include <iostream>
+
+//#include "KeyboardCtrl.h"
+//#include "Filter.h"
+//#include "opencv2/core/cuda.hpp"
+//#include "opencv2/../../../sources/modules/cudaarithm/include/opencv2/cudaarithm.hpp"
+
+
+
+using namespace std;
+using namespace cv;
+
+
+int main(int argc, char *argv[])
+{
+    Mat img;
+    VideoCapture cap(0); // open the camera 1
+    cap>>img;
+    imshow("result",img);
+    cout<<"asdf";
+    //Filter filter;
+    //KeyboardCtrl kbctrl(filter);
+
+    //img = imread("bolb.png",1);
+    //imshow("result",img);
+    system("pause");
+//    cuda::GpuMat src,dst;
+//    /* 0: Binary
+//     1: Binary Inverted
+//     2: Threshold Truncated
+//     3: Threshold to Zero
+//     4: Threshold to Zero Inverted
+//   */
+//    cuda::Stream stream;
+//    src.upload(img);
+//    cuda::threshold(src, dst, 128.0, 255.0,cv::THRESH_BINARY);
+
+/*
+    while(kbctrl.listenKey()){
+        cap >> img;
+        imshow("cap",img);
+        filter.subtractImg(img);
+        waitKey(1);
+    }
+*/
+    return 0;
+}
