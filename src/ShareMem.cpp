@@ -1,35 +1,10 @@
 #include "ShareMem.h"
 #include <windows.h>
-#include <tchar.h>
 #include <iostream>
 #define MAX_BUF_SIZE 0xFFFFF
-#pragma comment(lib, "user32.lib")
 
 using namespace std;
-//Access memory constructor
-ShareMem::ShareMem(TCHAR* n)
-{
-    name     = n;
-    hMapFile = OpenFileMapping(
-                    FILE_MAP_ALL_ACCESS,   // read/write access
-                    FALSE,                 // do not inherit the name
-                    name);               // name of mapping object
 
-    bBuf     = (void *)MapViewOfFile(
-                    hMapFile,   // handle to map object
-                    FILE_MAP_ALL_ACCESS, // read/write permission
-                    0,
-                    0,
-                    MAX_BUF_SIZE);
-
-    if (hMapFile != NULL)
-    {
-        if(bBuf == NULL)
-            cout << "bBuf read = NULL";
-    }
-    else
-        cout<<"Could not open file mapping object\n";
-}
 //Create memory constructor
 ShareMem::ShareMem(TCHAR* n,int size)
 {
@@ -52,27 +27,63 @@ ShareMem::ShareMem(TCHAR* n,int size)
 
         // create a pointer to the actual data with MapViewOfFile
 
-        bBuf = (PVOID) MapViewOfFile(
+        pBuf = (PVOID) MapViewOfFile(
                             hMapFile,   // handle to map object
                             FILE_MAP_ALL_ACCESS, // read/write permission
                             0,
                             0,
                             MAX_BUF_SIZE);
 
-        if (bBuf == NULL)
-            cout<<"Could not map view of file";
+        if (pBuf == NULL)
+            cout<<"Could not map view of file\n";
    }
    else
-            cout<<"Could not open file mapping object";
+            cout<<"Could not open file mapping object\n";
+}
+//Access memory constructor
+ShareMem::ShareMem(TCHAR* n)
+{
+    name     = n;
+    hMapFile = OpenFileMapping(
+                    FILE_MAP_ALL_ACCESS,   // read/write access
+                    FALSE,                 // do not inherit the name
+                    name);               // name of mapping object
+    if (hMapFile == NULL)
+    {
+          cout<<"Could not create file mapping object \n";
+
+    }
+    pBuf     = (void *)MapViewOfFile(
+                    hMapFile,   // handle to map object
+                    FILE_MAP_ALL_ACCESS, // read/write permission
+                    0,
+                    0,
+                    MAX_BUF_SIZE);
+    if (pBuf == NULL)
+    {
+        cout<<"Could not map view of file\n";
+
+
+           CloseHandle(hMapFile);
+
+    }
+
+    else
+        cout<<"Could not open file mapping object\n";
+}
+void ShareMem::freeMem(){
+   UnmapViewOfFile(pBuf);
+   CloseHandle(hMapFile);
+   cout<<"Close Shared Memory-----"<<name<<endl;
 }
 
 void ShareMem::writeMem(void *ptr){
-    CopyMemory(bBuf, ptr,buffer_size);
+    CopyMemory((PVOID)pBuf, ptr,buffer_size);
 }
 
 void* ShareMem::readMem(){
-    if(bBuf != NULL)
-        return bBuf;
+    if(pBuf != NULL)
+        return pBuf;
 }
 
 int ShareMem::getBufferSize(){

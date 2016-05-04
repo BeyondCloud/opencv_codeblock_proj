@@ -7,12 +7,13 @@ class ShareMem
     public:
         ShareMem(TCHAR*);
         ShareMem(TCHAR*,int);
+        void     freeMem();
         void     writeMem(void*);
         void*    readMem();
         int      getBufferSize();
         TCHAR*   getName();
         HANDLE hMapFile;
-        void* bBuf;
+        void* pBuf;
     private:
         int buffer_size;
         TCHAR* name;

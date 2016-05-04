@@ -58,6 +58,7 @@ int main(int argc, const char** argv)
 					imshow("subtract_target", subtract_tar);
 					break;
 				case 'e':
+                    sh.freeMem();
 					return -1;
 					break;
 

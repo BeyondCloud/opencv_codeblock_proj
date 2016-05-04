@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
     SimpleBlobDetector::Params pDefaultBLOB;
     // This is default parameters for SimpleBlobDetector
 
+
     pDefaultBLOB.thresholdStep = 10;
     pDefaultBLOB.minThreshold = 30;
     pDefaultBLOB.maxThreshold = 170;
@@ -91,8 +92,8 @@ int main(int argc, char *argv[])
     vector<vector <Point> >  region;
 
     Mat subtract_tar,frame, greyMat,result;
-    cap >> frame;
-	cvtColor(frame, subtract_tar, CV_BGR2GRAY);
+    cap >> greyMat;
+	cvtColor(greyMat, subtract_tar, CV_BGR2GRAY);
 
 
 
@@ -101,26 +102,21 @@ int main(int argc, char *argv[])
     blob blob_table[10];
     ShareMem sh(name,sizeof(blob_table));
     vector<KeyPoint>::iterator k;
-while(true){
-        clock_t begin = clock();
-        cap >> greyMat;
-
-       // cvtColor(img,greyMat, CV_BGR2GRAY);
-       // greyMat -= subtract_tar;
-
-
-
+    while(true){
+        clock_t begin = clock();   //this is used to calculate frame rate
+        cap >> frame;
+        cvtColor(frame,greyMat, CV_BGR2GRAY);
+        greyMat -= subtract_tar;
 
         sbd->detect(greyMat, keyImg, Mat());
         drawKeypoints(greyMat, keyImg, result);
 
         int i = 0,index;
         char sizeTxt[7] = "";
-        // text color of circle size
-        cv::Scalar c = cv::Scalar(0,255,0);
-        //iterate over each detected center and draw circle
-//        Circle(greyMat, center, radius, color, thickness=1, lineType=8, shift=0)
+        //cv::Scalar c = cv::Scalar(0,255,0); // text color of circle size
 
+        //iterate over each detected center and draw circle
+        //Circle(greyMat, center, radius, color, thickness=1, lineType=8, shift=0)
         for (k = keyImg.begin(); k != keyImg.end(); k++, i++)
         {
                     //draw circle use random colors
@@ -129,10 +125,8 @@ while(true){
             sprintf(sizeTxt,"%d", (int)k->size);
             putText(greyMat,sizeTxt ,k->pt, FONT_HERSHEY_DUPLEX,2,Scalar(255,255,255));
 
-            //cout<<t.x;    //get blob x axis
-            //cout << k-keyImg.begin();     //get k index
             index   = k-keyImg.begin();
-            if(index < 10)
+            if(index < 10 && index >=0)
             {
                 cout<<index;
                 Point t = k->pt;
@@ -142,7 +136,7 @@ while(true){
 
             }
         }
-        for(int i = index; i < 10 ; i++)
+        for(int i = index + 1 ; i < 10 ; i++)
             blob_table[i].size=0;
 
         sh.writeMem(blob_table);
@@ -153,16 +147,20 @@ while(true){
 		{
 			switch (_getch())
 			{
-                case 'u':
+                case 's':
 					cap >> frame;
 					cvtColor(frame, subtract_tar, CV_BGR2GRAY);
 					imshow("subtract_target", subtract_tar);
 					break;
                 case 'e':
+                    sh.freeMem();
+                    cap.release();
+                    cout << "Release camera\n";
 					return -1;
 					break;
 			}
 		}
+
         clock_t end = clock();
         cout<<"clockCycle="<<CLOCKS_PER_SEC/double(end-begin)<<endl;
     }
