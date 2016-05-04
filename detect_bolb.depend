@@ -1,34 +1,43 @@
 # depslib dependency file v1.0
-1460704320 source:c:\users\administrator\desktop\detect_bolb\src\detect_blob.cpp
+1462378769 source:c:\users\administrator\desktop\detect_bolb\src\detect_blob.cpp
 	<opencv2/objdetect/objdetect.hpp>
 	<opencv2/highgui/highgui.hpp>
 	<opencv2/imgproc/imgproc.hpp>
-	"KeyboardCtrl.h"
-	"Filter.h"
-
-1460704777 c:\users\administrator\desktop\detect_bolb\src\keyboardctrl.h
-	"Filter.h"
-
-1460704777 source:c:\users\administrator\desktop\detect_bolb\src\keyboardctrl.cpp
-	"KeyboardCtrl.h"
-	"iostream"
-	<conio.h>
-	"Filter.h"
-
-1460705729 c:\users\administrator\desktop\detect_bolb\src\filter.h
-	<opencv2/objdetect/objdetect.hpp>
-
-1460892519 source:c:\users\administrator\desktop\detect_bolb\src\filter.cpp
-	"Filter.h"
-	<opencv2/objdetect/objdetect.hpp>
-	<opencv2/highgui/highgui.hpp>
-	<opencv2/imgproc/imgproc.hpp>
-	"iostream"
-
-1460906837 source:c:\users\administrator\desktop\detect_bolb\src\main.cpp
-	"opencv2/objdetect/objdetect.hpp"
-	"opencv2/highgui/highgui.hpp"
-	"opencv2/imgproc/imgproc.hpp"
-	<stdio.h>
+	<opencv2/opencv.hpp>
+	<vector>
+	<map>
 	<iostream>
+	<conio.h>
+	<ctime>
+	"ShareMem.h"
+
+1461052719 source:c:\users\a1989\desktop\detect_bolb\src\detect_blob.cpp
+	<opencv2/objdetect/objdetect.hpp>
+	<opencv2/highgui/highgui.hpp>
+	<opencv2/imgproc/imgproc.hpp>
+	<opencv2/opencv.hpp>
+	<vector>
+	<map>
+	<iostream>
+	<conio.h>
+	<ctime>
+	"ShareMem.h"
+
+1461048935 source:c:\users\a1989\desktop\detect_bolb\src\sharemem.cpp
+	"ShareMem.h"
+	<windows.h>
+	<tchar.h>
+	<iostream>
+
+1459603394 c:\users\a1989\desktop\detect_bolb\src\sharemem.h
+	<windows.h>
+
+1461048935 source:c:\users\administrator\desktop\detect_bolb\src\sharemem.cpp
+	"ShareMem.h"
+	<windows.h>
+	<tchar.h>
+	<iostream>
+
+1459603394 c:\users\administrator\desktop\detect_bolb\src\sharemem.h
+	<windows.h>
 
