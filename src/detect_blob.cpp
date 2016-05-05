@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
 
 
     pDefaultBLOB.thresholdStep = 10;
-    pDefaultBLOB.minThreshold = 30;
-    pDefaultBLOB.maxThreshold = 170;
+    pDefaultBLOB.minThreshold = 5;
+    pDefaultBLOB.maxThreshold = 155;
     pDefaultBLOB.minRepeatability = 2;
     pDefaultBLOB.minDistBetweenBlobs = 10;
 
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
         sbd->detect(greyMat, keyImg, Mat());
         drawKeypoints(greyMat, keyImg, result);
 
-        int i = 0,index;
+        int i = 0,index=0;
         char sizeTxt[7] = "";
         //cv::Scalar c = cv::Scalar(0,255,0); // text color of circle size
 

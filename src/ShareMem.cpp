@@ -4,7 +4,7 @@
 #define MAX_BUF_SIZE 0xFFFFF
 
 using namespace std;
-
+#pragma comment (lib, "User32.lib")
 //Create memory constructor
 ShareMem::ShareMem(TCHAR* n,int size)
 {
