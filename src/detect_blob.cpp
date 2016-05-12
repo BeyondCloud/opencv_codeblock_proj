@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
         //Circle(greyMat, center, radius, color, thickness=1, lineType=8, shift=0)
 
         for(int i = 0 ; i < MAX_TOUCH;i++)
-            blob_table[index].size = 0;
+            blob_table[i].size = 0;
         for (k = keyImg.begin(); k != keyImg.end(); k++, i++)
         {
                     //draw circle use random colors
@@ -136,8 +136,8 @@ int main(int argc, char *argv[])
             }
 
         }
-        for(int i = index + 1 ; i < MAX_TOUCH ; i++)
-            blob_table[i].size=0;
+
+
 
         sh.writeMem(blob_table);
       imshow("area", greyMat);
