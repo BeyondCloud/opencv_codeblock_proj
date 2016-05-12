@@ -1,3 +1,7 @@
+//=============Path of Blob detector=================
+//opencv/sources/modules/features2d/src/blobdetector.cpp
+//===================================================
+
 #include <opencv2/objdetect/objdetect.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -9,8 +13,8 @@
 #include <conio.h>
 #include <ctime>
 #include "ShareMem.h"
+#define MAX_TOUCH 2
 TCHAR name[] = TEXT("bitmap");
-
 
 using namespace std;
 using namespace cv;
@@ -33,10 +37,8 @@ int main(int argc, char *argv[])
 
 
     SimpleBlobDetector::Params pDefaultBLOB;
-    // This is default parameters for SimpleBlobDetector
-
-
-    pDefaultBLOB.thresholdStep = 10;
+    //minThreshold + n * thresholdStep < maxThreshold ,n=0,1,2...
+    pDefaultBLOB.thresholdStep = 9;
     pDefaultBLOB.minThreshold = 5;
     pDefaultBLOB.maxThreshold = 155;
     pDefaultBLOB.minRepeatability = 2;
@@ -46,8 +48,8 @@ int main(int argc, char *argv[])
     pDefaultBLOB.blobColor = 0;
 
     pDefaultBLOB.filterByArea = true;
-    pDefaultBLOB.minArea = 25;
-    pDefaultBLOB.maxArea = 50;
+    pDefaultBLOB.minArea = 100;
+    pDefaultBLOB.maxArea = 300;
 
     pDefaultBLOB.filterByCircularity = false;
     pDefaultBLOB.minCircularity = 0.9f;
@@ -70,19 +72,13 @@ int main(int argc, char *argv[])
     // Color palette,will be used to generate random color to draw circle later
     vector< Vec3b >  palette;
     for (int i = 0; i<65536; i++)
-    {
         palette.push_back(Vec3b((uchar)rand(), (uchar)rand(), (uchar)rand()));
-    }
 
-    // Param for second BLOB detector we want area between 500 and 2900 pixels
     typeDesc.push_back("BLOB");
     pBLOB.push_back(pDefaultBLOB);
-    pBLOB.back().filterByArea = true;
-    pBLOB.back().minArea = 100;
-    pBLOB.back().maxArea = 300;
+
 
     vector<double> desMethCmp;
-    vector<KeyPoint> keyImg1;
     Ptr<Feature2D> b;
     b = SimpleBlobDetector::create(*pBLOB.begin());
 
@@ -99,12 +95,13 @@ int main(int argc, char *argv[])
 
 
     Ptr<SimpleBlobDetector> sbd = b.dynamicCast<SimpleBlobDetector>();
-    blob blob_table[10];
+    blob blob_table[MAX_TOUCH];
     ShareMem sh(name,sizeof(blob_table));
     vector<KeyPoint>::iterator k;
     while(true){
         clock_t begin = clock();   //this is used to calculate frame rate
         cap >> frame;
+ //     imshow("orig",frame);
         cvtColor(frame,greyMat, CV_BGR2GRAY);
         greyMat -= subtract_tar;
 
@@ -117,6 +114,9 @@ int main(int argc, char *argv[])
 
         //iterate over each detected center and draw circle
         //Circle(greyMat, center, radius, color, thickness=1, lineType=8, shift=0)
+
+        for(int i = 0 ; i < MAX_TOUCH;i++)
+            blob_table[index].size = 0;
         for (k = keyImg.begin(); k != keyImg.end(); k++, i++)
         {
                     //draw circle use random colors
@@ -124,9 +124,8 @@ int main(int argc, char *argv[])
                     //circle size txt
             sprintf(sizeTxt,"%d", (int)k->size);
             putText(greyMat,sizeTxt ,k->pt, FONT_HERSHEY_DUPLEX,2,Scalar(255,255,255));
-
             index   = k-keyImg.begin();
-            if(index < 10 && index >=0)
+           if(index < MAX_TOUCH && index >=0)
             {
                 cout<<index;
                 Point t = k->pt;
@@ -135,12 +134,13 @@ int main(int argc, char *argv[])
                 blob_table[index].size = (int)k->size;
 
             }
+
         }
-        for(int i = index + 1 ; i < 10 ; i++)
+        for(int i = index + 1 ; i < MAX_TOUCH ; i++)
             blob_table[i].size=0;
 
         sh.writeMem(blob_table);
-        imshow("area", greyMat);
+      imshow("area", greyMat);
         waitKey(2);
 
         if (_kbhit() )
