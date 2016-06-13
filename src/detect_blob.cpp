@@ -31,7 +31,17 @@ struct blob {
     int y=0;
     int size=0;
 };
-inline void reset_background(Mat &target)
+inline void display_clip_field(Mat img)
+{
+    rectangle(img,Point(CLIP_ORIGIN_X,CLIP_ORIGIN_Y)
+            ,Point(CLIP_ORIGIN_X+CLIP_WIDTH,CLIP_ORIGIN_Y+CLIP_HEIGHT)
+            ,Scalar( 0, 255, 255 )
+            ,1
+            ,8
+          );
+    imshow("clip_field",img);
+}
+void reset_background(Mat &target)
 {
     Mat bg;
     cap>>bg;
@@ -103,11 +113,13 @@ int main(int argc, char *argv[])
 
     ShareMem sh(name,sizeof(blob_table));
     vector<KeyPoint>::iterator k;
+   //Mat& img, Point pt1, Point pt2, const Scalar& color, int thickness=1, int lineType=8, int shift=0)¶
+
     while(true){
         clock_t begin = clock();   //this is used to calculate frame rate
         cap >> frame;
+        display_clip_field(frame);
         frame = cv::Mat(frame, cv::Rect(CLIP_ORIGIN_X,CLIP_ORIGIN_Y,CLIP_WIDTH,CLIP_HEIGHT));
-        imshow("orig",frame);
         cvtColor(frame,frame, CV_BGR2GRAY);
         frame -= subtract_tar;
 
