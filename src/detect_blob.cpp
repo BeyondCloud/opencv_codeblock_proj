@@ -14,30 +14,36 @@
 #include <ctime>
 #include "ShareMem.h"
 #define MAX_TOUCH 5
+#define CLIP_ORIGIN_X 40
+#define CLIP_ORIGIN_Y 100
+#define CLIP_WIDTH 540
+#define CLIP_HEIGHT 200
+
 TCHAR name[] = TEXT("bitmap");
 
 using namespace std;
 using namespace cv;
 
+VideoCapture cap(0); // open the camera 1
 
 struct blob {
     int x=0;
     int y=0;
     int size=0;
 };
-
+inline void reset_background(Mat &target)
+{
+    Mat bg;
+    cap>>bg;
+    imshow("background",bg);
+    bg = cv::Mat(bg, cv::Rect(CLIP_ORIGIN_X,CLIP_ORIGIN_Y,CLIP_WIDTH,CLIP_HEIGHT));
+    cvtColor(bg, bg, CV_BGR2GRAY);
+    target = bg;
+}
 int main(int argc, char *argv[])
 {
-
-
-    VideoCapture cap(0); // open the camera 1
-    //=====test code below
-    Mat test;
-    cap >> test;
-
-    //==============================
-
-
+    Mat subtract_tar,frame,result;
+    blob blob_table[MAX_TOUCH];
 	if (!cap.isOpened()) //return -1 when no camera found
 		return -1;
 
@@ -92,42 +98,39 @@ int main(int argc, char *argv[])
  // vector<Rect>  zone;
  // vector<vector <Point> >  region;
 
-    Mat subtract_tar,frame, greyMat,result;
-    cap >> greyMat;
-    greyMat = cv::Mat(greyMat, cv::Rect(40,100,540,200));
-	cvtColor(greyMat, subtract_tar, CV_BGR2GRAY);
-
+    reset_background(subtract_tar);
     Ptr<SimpleBlobDetector> sbd = b.dynamicCast<SimpleBlobDetector>();
-    blob blob_table[MAX_TOUCH];
+
     ShareMem sh(name,sizeof(blob_table));
     vector<KeyPoint>::iterator k;
     while(true){
         clock_t begin = clock();   //this is used to calculate frame rate
         cap >> frame;
-       frame = cv::Mat(frame, cv::Rect(40,100,540,200));
-      imshow("orig",frame);
-        cvtColor(frame,greyMat, CV_BGR2GRAY);
-        greyMat -= subtract_tar;
+        frame = cv::Mat(frame, cv::Rect(CLIP_ORIGIN_X,CLIP_ORIGIN_Y,CLIP_WIDTH,CLIP_HEIGHT));
+        imshow("orig",frame);
+        cvtColor(frame,frame, CV_BGR2GRAY);
+        frame -= subtract_tar;
 
-        sbd->detect(greyMat, keyImg, Mat());
-        drawKeypoints(greyMat, keyImg, result);
+        sbd->detect(frame, keyImg, Mat());
+        drawKeypoints(frame, keyImg, result);
 
         int i = 0,index=0;
         char sizeTxt[7] = "";
         //cv::Scalar c = cv::Scalar(0,255,0); // text color of circle size
 
         //iterate over each detected center and draw circle
-        //Circle(greyMat, center, radius, color, thickness=1, lineType=8, shift=0)
+        //Circle(frame, center, radius, color, thickness=1, lineType=8, shift=0)
 
         for(int i = 0 ; i < MAX_TOUCH;i++)
             blob_table[i].size = 0;
         for (k = keyImg.begin(); k != keyImg.end(); k++, i++)
         {
                     //draw circle use random colors
-            circle(greyMat, k->pt, (int)k->size, palette[i % 65536],3);
+
+            circle(frame, k->pt, (int)k->size, palette[i % 65536],3);
                     //circle size txt
             sprintf(sizeTxt,"%d", (int)k->size);
-            putText(greyMat,sizeTxt ,k->pt, FONT_HERSHEY_DUPLEX,2,Scalar(255,255,255));
+            putText(frame,sizeTxt ,k->pt, FONT_HERSHEY_DUPLEX,2,Scalar(255,255,255));
             index   = k-keyImg.begin();
            if(index < MAX_TOUCH && index >=0)
             {
@@ -138,9 +141,8 @@ int main(int argc, char *argv[])
                 blob_table[index].size = (int)k->size;
             }
         }
-
         sh.writeMem(blob_table);
-        imshow("area", greyMat);
+        imshow("area", frame);
         waitKey(2);
 
         if (_kbhit() )
@@ -148,11 +150,8 @@ int main(int argc, char *argv[])
 			switch (_getch())
 			{
                 case 's':
-					cap >> frame;
-					frame = cv::Mat(frame, cv::Rect(40,100,540,200));
-					cvtColor(frame, subtract_tar, CV_BGR2GRAY);
-					imshow("subtract_target", subtract_tar);
-					break;
+                    reset_background(subtract_tar);
+                    break;
                 case 'e':
                     sh.freeMem();
                     cap.release();
@@ -161,7 +160,6 @@ int main(int argc, char *argv[])
 					break;
 			}
 		}
-
         clock_t end = clock();
         cout<<"clockCycle="<<CLOCKS_PER_SEC/double(end-begin)<<endl;
     }
