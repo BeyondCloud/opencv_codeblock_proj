@@ -13,7 +13,7 @@
 #include <conio.h>
 #include <ctime>
 #include "ShareMem.h"
-#define MAX_TOUCH 2
+#define MAX_TOUCH 5
 TCHAR name[] = TEXT("bitmap");
 
 using namespace std;
@@ -29,18 +29,23 @@ struct blob {
 int main(int argc, char *argv[])
 {
 
+
     VideoCapture cap(0); // open the camera 1
+    //=====test code below
+    Mat test;
+    cap >> test;
+
+    //==============================
+
 
 	if (!cap.isOpened()) //return -1 when no camera found
 		return -1;
 
-
-
     SimpleBlobDetector::Params pDefaultBLOB;
     //minThreshold + n * thresholdStep < maxThreshold ,n=0,1,2...
     pDefaultBLOB.thresholdStep = 9;
-    pDefaultBLOB.minThreshold = 5;
-    pDefaultBLOB.maxThreshold = 155;
+    pDefaultBLOB.minThreshold = 10;
+    pDefaultBLOB.maxThreshold = 145;
     pDefaultBLOB.minRepeatability = 2;
     pDefaultBLOB.minDistBetweenBlobs = 10;
 
@@ -48,8 +53,8 @@ int main(int argc, char *argv[])
     pDefaultBLOB.blobColor = 0;
 
     pDefaultBLOB.filterByArea = true;
-    pDefaultBLOB.minArea = 100;
-    pDefaultBLOB.maxArea = 300;
+    pDefaultBLOB.minArea = 40;
+    pDefaultBLOB.maxArea = 600;
 
     pDefaultBLOB.filterByCircularity = false;
     pDefaultBLOB.minCircularity = 0.9f;
@@ -84,15 +89,13 @@ int main(int argc, char *argv[])
 
     // We can detect keypoint with detect method
     vector<KeyPoint>  keyImg;
-    vector<Rect>  zone;
-    vector<vector <Point> >  region;
+ // vector<Rect>  zone;
+ // vector<vector <Point> >  region;
 
     Mat subtract_tar,frame, greyMat,result;
     cap >> greyMat;
+    greyMat = cv::Mat(greyMat, cv::Rect(40,100,540,200));
 	cvtColor(greyMat, subtract_tar, CV_BGR2GRAY);
-
-
-
 
     Ptr<SimpleBlobDetector> sbd = b.dynamicCast<SimpleBlobDetector>();
     blob blob_table[MAX_TOUCH];
@@ -101,7 +104,8 @@ int main(int argc, char *argv[])
     while(true){
         clock_t begin = clock();   //this is used to calculate frame rate
         cap >> frame;
- //     imshow("orig",frame);
+       frame = cv::Mat(frame, cv::Rect(40,100,540,200));
+      imshow("orig",frame);
         cvtColor(frame,greyMat, CV_BGR2GRAY);
         greyMat -= subtract_tar;
 
@@ -132,15 +136,11 @@ int main(int argc, char *argv[])
                 blob_table[index].x = t.x;
                 blob_table[index].y = t.y;
                 blob_table[index].size = (int)k->size;
-
             }
-
         }
 
-
-
         sh.writeMem(blob_table);
-      imshow("area", greyMat);
+        imshow("area", greyMat);
         waitKey(2);
 
         if (_kbhit() )
@@ -149,6 +149,7 @@ int main(int argc, char *argv[])
 			{
                 case 's':
 					cap >> frame;
+					frame = cv::Mat(frame, cv::Rect(40,100,540,200));
 					cvtColor(frame, subtract_tar, CV_BGR2GRAY);
 					imshow("subtract_target", subtract_tar);
 					break;
